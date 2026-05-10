@@ -762,6 +762,173 @@ class PageTruthTable(Page):
 
 
 # ─────────────────────────────────────────────────────────
+#  PAGE 6 — ALU 1-BIT
+# ─────────────────────────────────────────────────────────
+class PageALU(Page):
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "ALU 1-BIT (ADDER & SUBTRACTOR)", 
+                 "Menghitung penjumlahan dan pengurangan biner 1-bit.\n"
+                 "• Adder menghasilkan Sum & Carry Out\n"
+                 "• Subtractor menghasilkan Difference & Borrow Out")
+        
+        section_label(self, "INPUT BINER")
+        hint_label(self, "Masukkan angka 0 atau 1 pada masing-masing kolom")
+        
+        row1 = tk.Frame(self, bg=PANEL); row1.pack(fill="x", pady=2)
+        tk.Label(row1, text="Input A:", font=F_BODY, bg=PANEL, fg=GREY, width=15, anchor="w").pack(side="left")
+        self.alu_a = styled_entry(row1, width=10); self.alu_a.pack(side="left")
+        
+        row2 = tk.Frame(self, bg=PANEL); row2.pack(fill="x", pady=2)
+        tk.Label(row2, text="Input B:", font=F_BODY, bg=PANEL, fg=GREY, width=15, anchor="w").pack(side="left")
+        self.alu_b = styled_entry(row2, width=10); self.alu_b.pack(side="left")
+        
+        row3 = tk.Frame(self, bg=PANEL); row3.pack(fill="x", pady=2)
+        tk.Label(row3, text="Carry/Borrow In:", font=F_BODY, bg=PANEL, fg=GREY, width=15, anchor="w").pack(side="left")
+        self.alu_cin = styled_entry(row3, width=10); self.alu_cin.pack(side="left")
+        
+        btn_f = tk.Frame(self, bg=PANEL); btn_f.pack(fill="x", pady=(16, 0))
+        action_btn(btn_f, "➕ HITUNG ADDER", lambda: self.calc_alu("adder"), GREEN).pack(side="left", padx=(0, 10))
+        action_btn(btn_f, "➖ HITUNG SUBTRACTOR", lambda: self.calc_alu("sub"), ORANGE).pack(side="left")
+        
+        section_label(self, "HASIL OUTPUT")
+        self.res_var = tk.StringVar(value="...")
+        tk.Label(self, textvariable=self.res_var, font=F_CALC_S, bg=PANEL, fg=CYAN, justify="left").pack(anchor="w")
+
+    def calc_alu(self, mode):
+        try:
+            a, b, c = int(self.alu_a.get()), int(self.alu_b.get()), int(self.alu_cin.get())
+            if not all(x in (0,1) for x in (a,b,c)): raise ValueError
+            
+            if mode == "adder":
+                s = a ^ b ^ c
+                cout = (a & b) | (b & c) | (a & c)
+                self.res_var.set(f"∑ Sum (S) = {s}\nCarry Out (Cout) = {cout}")
+            else:
+                diff = a ^ b ^ c
+                bout = (int(not a) & c) | (int(not a) & b) | (b & c)
+                self.res_var.set(f"Δ Difference (D) = {diff}\nBorrow Out (Bout) = {bout}")
+        except:
+            messagebox.showerror("Error", "Input ALU harus berupa angka 0 atau 1!")
+
+# ─────────────────────────────────────────────────────────
+#  PAGE 7 — ARITMATIKA BINER N-BIT
+# ─────────────────────────────────────────────────────────
+class PageArith(Page):
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "ARITMATIKA BINER N-BIT", 
+                 "Kalkulator untuk menjumlahkan, mengurangkan, dan mengalikan bilangan biner.")
+                 
+        section_label(self, "OPERASI BINER")
+        row = tk.Frame(self, bg=PANEL); row.pack(fill="x", pady=5)
+        
+        self.bin1 = styled_entry(row, width=15); self.bin1.pack(side="left", padx=(0, 10))
+        
+        self.op_var = tk.StringVar(value="+")
+        op_menu = ttk.Combobox(row, textvariable=self.op_var, values=["+", "-", "*"], width=5, state="readonly", font=F_MONO)
+        op_menu.pack(side="left", padx=10)
+        
+        self.bin2 = styled_entry(row, width=15); self.bin2.pack(side="left", padx=10)
+        
+        action_btn(self, "⚙ HITUNG", self.calc_binary, BLUE).pack(anchor="w", pady=16)
+        
+        section_label(self, "HASIL")
+        self.res_var = tk.StringVar(value="...")
+        tk.Label(self, textvariable=self.res_var, font=F_CALC_S, bg=PANEL, fg=GREEN, justify="left").pack(anchor="w")
+
+    def calc_binary(self):
+        try:
+            val1 = int(self.bin1.get(), 2)
+            val2 = int(self.bin2.get(), 2)
+            op = self.op_var.get()
+            
+            if op == "+": res = val1 + val2
+            elif op == "-": res = val1 - val2
+            elif op == "*": res = val1 * val2
+            
+            if res < 0:
+                bin_res = "-" + bin(res)[3:]
+            else:
+                bin_res = bin(res)[2:]
+                
+            self.res_var.set(f"Biner   : {bin_res}\nDesimal : {res}")
+        except:
+            messagebox.showerror("Error", "Input harus berupa bilangan biner yang valid!")
+
+# ─────────────────────────────────────────────────────────
+#  PAGE 8 — PRIORITY ENCODER 8-TO-3
+# ─────────────────────────────────────────────────────────
+class PageEncoder(Page):
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "PRIORITY ENCODER 8-TO-3", 
+                 "Pilih jalur input yang aktif (I7 hingga I0). Priority Encoder akan memproses "
+                 "jalur dengan indeks tertinggi menjadi output biner 3-bit.")
+                 
+        section_label(self, "INPUT JALUR (CHECKBOX)")
+        hint_label(self, "I7 memiliki prioritas tertinggi")
+        
+        f = tk.Frame(self, bg=SURFACE, highlightthickness=1, highlightbackground=BORDER, padx=14, pady=14)
+        f.pack(fill="x", pady=10)
+        
+        self.enc_vars = [tk.IntVar() for _ in range(8)]
+        for i in range(7, -1, -1):
+            chk = tk.Checkbutton(f, text=f"I{i}", variable=self.enc_vars[i], font=F_MONO,
+                                 bg=SURFACE, fg=WHITE, selectcolor=SURFACE2, activebackground=SURFACE, activeforeground=CYAN)
+            chk.pack(side="left", expand=True)
+
+        action_btn(self, "⚙ ENCODE", self.calc_encoder, BLUE_DIM).pack(anchor="w", pady=16)
+        
+        section_label(self, "OUTPUT BINER (A2 A1 A0)")
+        self.res_var = tk.StringVar(value="-")
+        tk.Label(self, textvariable=self.res_var, font=F_CALC, bg=PANEL, fg=BLUE_GLOW).pack(anchor="w")
+
+    def calc_encoder(self):
+        output = "000"
+        for i in range(7, -1, -1):
+            if self.enc_vars[i].get() == 1:
+                output = format(i, '03b')
+                break
+        if all(v.get() == 0 for v in self.enc_vars):
+            self.res_var.set("IDLE (Semua 0)")
+        else:
+            self.res_var.set(output)
+
+# ─────────────────────────────────────────────────────────
+#  PAGE 9 — DECODER 3-TO-8
+# ─────────────────────────────────────────────────────────
+class PageDecoder(Page):
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "DECODER 3-TO-8", 
+                 "Menerjemahkan input 3-bit biner menjadi 8 jalur output (hanya 1 jalur yang bernilai 1).")
+                 
+        section_label(self, "INPUT 3-BIT")
+        hint_label(self, "Masukkan tepat 3 digit biner (misal: 101)")
+        
+        row = tk.Frame(self, bg=PANEL); row.pack(fill="x", pady=5)
+        self.dec_entry = styled_entry(row, width=10); self.dec_entry.pack(side="left", padx=(0, 10))
+        action_btn(row, "⚙ DECODE", self.calc_decoder, BLUE_DIM).pack(side="left")
+        
+        section_label(self, "OUTPUT JALUR (Y0 - Y7)")
+        self.res_var = tk.StringVar(value="")
+        tk.Label(self, textvariable=self.res_var, font=F_MONO, bg=PANEL, fg=CYAN, justify="left").pack(anchor="w", pady=10)
+
+    def calc_decoder(self):
+        val = self.dec_entry.get().strip()
+        if len(val) != 3 or not all(c in '01' for c in val):
+            messagebox.showerror("Error", "Input harus 3 digit biner!")
+            return
+            
+        decimal_val = int(val, 2)
+        res_text = ""
+        for i in range(8):
+            active = "1 (AKTIF)" if i == decimal_val else "0"
+            res_text += f"Y{i} = {active}\n"
+        self.res_var.set(res_text)
+
+# ─────────────────────────────────────────────────────────
 #  MAIN APPLICATION
 # ─────────────────────────────────────────────────────────
 NAV = [
@@ -770,6 +937,10 @@ NAV = [
     ("EQ",    "Equation\nGenerator",    "03"),
     ("GATE",  "Gate\nCircuit",          "04"),
     ("TABLE", "Truth\nTable",           "05"),
+    ("ALU",   "ALU 1-Bit\nSimulator",   "06"),
+    ("ARITH", "Binary\nArithmetic",     "07"),
+    ("ENC",   "Priority\nEncoder",      "08"),
+    ("DEC",   "3-to-8\nDecoder",        "09"),
 ]
 
 class App:
@@ -781,8 +952,30 @@ class App:
         self._build()
 
     def _build(self):
-        # ── Sidebar ───────────────────────────────────────
-        sb=tk.Frame(self.root,bg=PANEL,width=168); sb.pack(side="left",fill="y"); sb.pack_propagate(False)
+        # ── Sidebar Container ─────────────────────────────
+        sb_outer=tk.Frame(self.root,bg=PANEL,width=168)
+        sb_outer.pack(side="left",fill="y"); sb_outer.pack_propagate(False)
+        
+        # Bottom Pinned Text
+        tk.Label(sb_outer,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
+        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
+        
+        # Scrollable Canvas
+        sb_canvas = tk.Canvas(sb_outer, bg=PANEL, highlightthickness=0)
+        sb_vsb = ttk.Scrollbar(sb_outer, orient="vertical", command=sb_canvas.yview)
+        sb_canvas.configure(yscrollcommand=sb_vsb.set)
+        
+        sb_vsb.pack(side="right", fill="y")
+        sb_canvas.pack(side="left", fill="both", expand=True)
+        
+        sb = tk.Frame(sb_canvas, bg=PANEL)
+        sb.bind("<Configure>", lambda e: sb_canvas.configure(scrollregion=sb_canvas.bbox("all")))
+        sb_canvas.create_window((0,0), window=sb, anchor="nw", width=150)
+        
+        def _scroll_sb(e):
+            sb_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
+        sb_outer.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
+        sb_outer.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
 
         # Logo
         lf=tk.Frame(sb,bg=PANEL); lf.pack(fill="x",pady=(22,8))
@@ -803,10 +996,6 @@ class App:
             btn.pack(fill="x")
             self.nav_items.append((frm,nl,btn))
 
-        tk.Frame(sb,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
-        tk.Label(sb,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),
-                 bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
-
         # ── Right ─────────────────────────────────────────
         right=tk.Frame(self.root,bg=BG); right.pack(side="right",fill="both",expand=True)
 
@@ -826,7 +1015,11 @@ class App:
         p2=PageEquation(self.container)
         p3=PageGate(self.container)
         p4=PageTruthTable(self.container,on_export=self._export_to_eq)
-        for p in [p0,p1,p2,p3,p4]:
+        p5=PageALU(self.container)
+        p6=PageArith(self.container)
+        p7=PageEncoder(self.container)
+        p8=PageDecoder(self.container)
+        for p in [p0,p1,p2,p3,p4,p5,p6,p7,p8]:
             p.place(relx=0,rely=0,relwidth=1,relheight=1)
             self.pages.append(p)
 
