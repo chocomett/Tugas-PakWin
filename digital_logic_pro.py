@@ -1235,34 +1235,34 @@ class App:
         # ── Sidebar Container ─────────────────────────────
         sb_outer=tk.Frame(self.root,bg=PANEL,width=168)
         sb_outer.pack(side="left",fill="y"); sb_outer.pack_propagate(False)
-
-        # ── Logo & Version — STATIC (tidak ikut scroll) ───
-        lf=tk.Frame(sb_outer,bg=PANEL); lf.pack(fill="x",pady=(22,8))
-        tk.Label(lf,text="DL",font=("Consolas",30,"bold"),bg=PANEL,fg=BLUE).pack()
-        tk.Label(lf,text="SUITE",font=("Segoe UI",7,"bold"),bg=PANEL,fg=GREY).pack()
-        tk.Label(lf,text="Digital Logic v2.0",font=("Segoe UI",7),bg=PANEL,fg=GREY_DIM).pack(pady=(0,12))
-        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,pady=(0,4))
-
-        # ── Bottom Pinned Text — STATIC ───────────────────
+        
+        # Bottom Pinned Text
         tk.Label(sb_outer,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
         tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
-
-        # ── Scrollable Nav Menu ───────────────────────────
+        
+        # Scrollable Canvas
         sb_canvas = tk.Canvas(sb_outer, bg=PANEL, highlightthickness=0)
         sb_vsb = ttk.Scrollbar(sb_outer, orient="vertical", command=sb_canvas.yview)
         sb_canvas.configure(yscrollcommand=sb_vsb.set)
-
+        
         sb_vsb.pack(side="right", fill="y")
         sb_canvas.pack(side="left", fill="both", expand=True)
-
+        
         sb = tk.Frame(sb_canvas, bg=PANEL)
         sb.bind("<Configure>", lambda e: sb_canvas.configure(scrollregion=sb_canvas.bbox("all")))
         sb_canvas.create_window((0,0), window=sb, anchor="nw", width=150)
-
+        
         def _scroll_sb(e):
             sb_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
-        sb_canvas.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
-        sb_canvas.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
+        sb_outer.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
+        sb_outer.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
+
+        # Logo
+        lf=tk.Frame(sb,bg=PANEL); lf.pack(fill="x",pady=(22,8))
+        tk.Label(lf,text="DL",font=("Consolas",30,"bold"),bg=PANEL,fg=BLUE).pack()
+        tk.Label(lf,text="SUITE",font=("Segoe UI",7,"bold"),bg=PANEL,fg=GREY).pack()
+        tk.Label(lf,text="Digital Logic v2.0",font=("Segoe UI",7),bg=PANEL,fg=GREY_DIM).pack(pady=(0,12))
+        tk.Frame(sb,bg=BORDER,height=1).pack(fill="x",padx=14,pady=(0,8))
 
         self.nav_items=[]
         for i,(key,label,num) in enumerate(NAV):
