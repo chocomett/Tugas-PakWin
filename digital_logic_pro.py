@@ -929,6 +929,285 @@ class PageDecoder(Page):
         self.res_var.set(res_text)
 
 # ─────────────────────────────────────────────────────────
+#  PAGE 10 — HEX TO 7-SEGMENT DISPLAY
+# ─────────────────────────────────────────────────────────
+class PageHexTo7Seg(Page):
+    """
+    Konversi digit Hexadecimal (0–F) ke tampilan 7-Segment.
+    Segmen: a (atas), b (kanan atas), c (kanan bawah),
+            d (bawah), e (kiri bawah), f (kiri atas), g (tengah)
+
+    Encoding aktif-HIGH (1 = nyala):
+       a  b  c  d  e  f  g
+    """
+    # Segment map: key → (a,b,c,d,e,f,g)
+    SEG_MAP = {
+        '0': (1,1,1,1,1,1,0),
+        '1': (0,1,1,0,0,0,0),
+        '2': (1,1,0,1,1,0,1),
+        '3': (1,1,1,1,0,0,1),
+        '4': (0,1,1,0,0,1,1),
+        '5': (1,0,1,1,0,1,1),
+        '6': (1,0,1,1,1,1,1),
+        '7': (1,1,1,0,0,0,0),
+        '8': (1,1,1,1,1,1,1),
+        '9': (1,1,1,1,0,1,1),
+        'A': (1,1,1,0,1,1,1),
+        'B': (0,0,1,1,1,1,1),
+        'C': (1,0,0,1,1,1,0),
+        'D': (0,1,1,1,1,0,1),
+        'E': (1,0,0,1,1,1,1),
+        'F': (1,0,0,0,1,1,1),
+    }
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "HEX TO 7-SEGMENT DISPLAY",
+                 "Konversi digit Hexadecimal (0–F) menjadi output 7-Segment.\n"
+                 "• Masukkan 1–4 digit hex untuk melihat tampilan multi-digit\n"
+                 "• Segmen: a=atas · b=kanan-atas · c=kanan-bawah · d=bawah · e=kiri-bawah · f=kiri-atas · g=tengah\n"
+                 "• Encoding aktif-HIGH: 1=nyala (kuning) · 0=mati (gelap)")
+        self._build()
+
+    def _build(self):
+        # ── Input row ──────────────────────────────────────
+        section_label(self, "INPUT HEX DIGIT(S)")
+        hint_label(self, "Masukkan 1–4 digit hex (0–9, A–F), contoh: 2A, F0, 1B3C")
+
+        inp_row = tk.Frame(self, bg=PANEL); inp_row.pack(fill="x", pady=(0, 10))
+        self.hex_entry = styled_entry(inp_row, width=12)
+        self.hex_entry.pack(side="left", ipady=6, padx=(0, 10))
+        self.hex_entry.bind("<Return>", lambda e: self._convert())
+
+        action_btn(inp_row, "▶  KONVERSI", self._convert, BLUE).pack(side="left", padx=(0, 8))
+        action_btn(inp_row, "✕  CLEAR",    self._clear,   RED_DIM).pack(side="left")
+
+        # ── HEX pad (quick-input) ──────────────────────────
+        section_label(self, "QUICK INPUT PAD")
+        pad_outer = tk.Frame(self, bg=SURFACE, highlightthickness=1,
+                             highlightbackground=BORDER, padx=10, pady=10)
+        pad_outer.pack(anchor="w", pady=(0, 14))
+
+        hex_chars = list("0123456789ABCDEF")
+        for idx, ch in enumerate(hex_chars):
+            b = tk.Button(pad_outer, text=ch, font=("Consolas", 9, "bold"),
+                          bg=SURFACE2, fg=WHITE, relief="flat", cursor="hand2",
+                          padx=10, pady=6,
+                          command=lambda c=ch: self._append_char(c))
+            lighter = _lighten(SURFACE2, 30)
+            b.bind("<Enter>", lambda e, b=b: b.config(bg=lighter))
+            b.bind("<Leave>", lambda e, b=b: b.config(bg=SURFACE2))
+            b.grid(row=idx // 8, column=idx % 8, padx=2, pady=2)
+
+        # ── Canvas area for 7-segment display ─────────────
+        section_label(self, "TAMPILAN 7-SEGMENT")
+        self.canvas_frame = tk.Frame(self, bg=SURFACE, highlightthickness=1,
+                                     highlightbackground=BORDER)
+        self.canvas_frame.pack(fill="x", pady=(0, 12))
+
+        self.seg_canvas = tk.Canvas(self.canvas_frame, bg=SURFACE,
+                                    highlightthickness=0, height=160)
+        self.seg_canvas.pack(fill="x", padx=14, pady=14)
+
+        # ── Segment table ──────────────────────────────────
+        section_label(self, "TABEL SEGMENT (a b c d e f g)")
+        self.table_frame = tk.Frame(self, bg=PANEL)
+        self.table_frame.pack(fill="x", pady=(0, 8))
+        self._draw_table_header()
+
+        # initial hint
+        self._status_lbl = tk.Label(self, text="← Masukkan digit hex lalu klik KONVERSI",
+                                    font=F_SMALL, bg=PANEL, fg=GREY_DIM)
+        self._status_lbl.pack(anchor="w")
+
+    # ── helpers ───────────────────────────────────────────
+    def _append_char(self, c):
+        cur = self.hex_entry.get()
+        if len(cur) < 4:
+            self.hex_entry.insert(tk.END, c)
+
+    def _clear(self):
+        self.hex_entry.delete(0, tk.END)
+        self.seg_canvas.delete("all")
+        for w in self.table_frame.winfo_children():
+            if hasattr(w, '_is_data_row'):
+                w.destroy()
+        self._draw_table_header()
+        self._status_lbl.config(text="← Masukkan digit hex lalu klik KONVERSI", fg=GREY_DIM)
+
+    def _draw_table_header(self):
+        # remove old header if any
+        for w in self.table_frame.winfo_children():
+            w.destroy()
+        cols = ["DIGIT", "a", "b", "c", "d", "e", "f", "g", "BINARY (abcdefg)", "HEX CODE"]
+        hrow = tk.Frame(self.table_frame, bg=BLUE_DIM)
+        hrow.pack(fill="x")
+        widths = [7, 4, 4, 4, 4, 4, 4, 4, 20, 12]
+        for i, (col, w) in enumerate(zip(cols, widths)):
+            fg = BLUE_GLOW if i == 0 else (YELLOW if i <= 7 else WHITE)
+            tk.Label(hrow, text=col, font=("Consolas", 8, "bold"),
+                     bg=BLUE_DIM, fg=fg, width=w, anchor="center").pack(side="left")
+
+    def _convert(self):
+        raw = self.hex_entry.get().strip().upper()
+        if not raw:
+            messagebox.showerror("Error", "Input tidak boleh kosong!")
+            return
+        if not all(c in "0123456789ABCDEF" for c in raw):
+            messagebox.showerror("Error", "Input hanya boleh karakter hex: 0–9, A–F")
+            return
+        if len(raw) > 4:
+            messagebox.showerror("Error", "Maksimal 4 digit hex!")
+            return
+
+        # clear old table data rows
+        self._draw_table_header()
+        self._status_lbl.config(text="")
+
+        # draw segments on canvas
+        self.seg_canvas.delete("all")
+        self._draw_digits(raw)
+
+        # draw table rows
+        for i, ch in enumerate(raw):
+            segs = self.SEG_MAP[ch]
+            bg = SURFACE if i % 2 == 0 else SURFACE2
+            drow = tk.Frame(self.table_frame, bg=bg)
+            drow._is_data_row = True
+            drow.pack(fill="x")
+
+            widths = [7, 4, 4, 4, 4, 4, 4, 4, 20, 12]
+            # digit
+            tk.Label(drow, text=ch, font=("Consolas", 9, "bold"),
+                     bg=bg, fg=CYAN, width=widths[0], anchor="center").pack(side="left")
+            # segment bits
+            for j, bit in enumerate(segs):
+                fg = GREEN if bit else GREY_DIM
+                tk.Label(drow, text=str(bit), font=("Consolas", 9, "bold"),
+                         bg=bg, fg=fg, width=widths[j+1], anchor="center").pack(side="left")
+            # binary string
+            bin_str = "".join(str(s) for s in segs)
+            hex_code = f"0x{int(bin_str, 2):02X}"
+            tk.Label(drow, text=bin_str, font=("Consolas", 9),
+                     bg=bg, fg=BLUE_GLOW, width=widths[8], anchor="center").pack(side="left")
+            tk.Label(drow, text=hex_code, font=("Consolas", 9, "bold"),
+                     bg=bg, fg=ORANGE, width=widths[9], anchor="center").pack(side="left")
+
+        self._status_lbl.config(
+            text=f"  ✓ {len(raw)} digit dikonversi — segmen aktif ditampilkan kuning",
+            fg=GREEN)
+
+    # ── 7-segment canvas drawing ──────────────────────────
+    def _draw_digits(self, digits):
+        """Draw one or more 7-segment digit displays on the canvas."""
+        # Dimensions of one digit cell
+        W  = 80    # cell width
+        H  = 130   # cell height
+        PAD_X = 20 # left margin
+        GAP   = 18 # gap between digits
+
+        total_w = PAD_X * 2 + len(digits) * W + (len(digits) - 1) * GAP
+        # make canvas wide enough
+        self.seg_canvas.config(width=max(total_w, 300), height=H + 30)
+
+        SEG_ON  = "#eab308"   # YELLOW – lit
+        SEG_OFF = "#1f1f2e"   # SURFACE2 – dim
+        BG_DIGIT = "#0d0d0f"  # BG
+
+        for di, ch in enumerate(digits):
+            ox = PAD_X + di * (W + GAP)
+            oy = 15
+            segs = self.SEG_MAP[ch]  # (a,b,c,d,e,f,g)
+
+            # background rect
+            self.seg_canvas.create_rectangle(
+                ox, oy, ox + W, oy + H,
+                fill="#13131a", outline=BORDER, width=1)
+
+            # digit label below
+            self.seg_canvas.create_text(
+                ox + W // 2, oy + H + 10,
+                text=ch, fill=CYAN,
+                font=("Consolas", 9, "bold"))
+
+            T  = 8    # segment thickness
+            M  = 6    # margin from cell edge
+            MH = 4    # half-thickness for join
+
+            # Segment layout (all coords relative to ox, oy):
+            # a – top horizontal
+            # b – top-right vertical
+            # c – bottom-right vertical
+            # d – bottom horizontal
+            # e – bottom-left vertical
+            # f – top-left vertical
+            # g – middle horizontal
+
+            mid_y = oy + H // 2
+
+            def seg(idx, points, color_on):
+                color = color_on if segs[idx] else SEG_OFF
+                self.seg_canvas.create_polygon(
+                    *points, fill=color, outline="")
+
+            def h_seg(x1, y, x2, col):
+                """Draw a horizontal segment as a hexagon."""
+                pts = [
+                    x1 + MH, y,
+                    x2 - MH, y,
+                    x2,      y + MH,
+                    x2 - MH, y + T,
+                    x1 + MH, y + T,
+                    x1,      y + MH,
+                ]
+                self.seg_canvas.create_polygon(*pts, fill=col, outline="")
+
+            def v_seg(x, y1, y2, col):
+                """Draw a vertical segment as a hexagon."""
+                pts = [
+                    x,      y1 + MH,
+                    x + MH, y1,
+                    x + T,  y1 + MH,
+                    x + T,  y2 - MH,
+                    x + MH, y2,
+                    x,      y2 - MH,
+                ]
+                self.seg_canvas.create_polygon(*pts, fill=col, outline="")
+
+            # a – top
+            h_seg(ox + M,     oy + M,
+                  ox + W - M, SEG_ON if segs[0] else SEG_OFF)
+
+            # b – top-right
+            v_seg(ox + W - M - T, oy + M + T,
+                  mid_y - MH,
+                  SEG_ON if segs[1] else SEG_OFF)
+
+            # c – bottom-right
+            v_seg(ox + W - M - T, mid_y + T + MH,
+                  oy + H - M - T,
+                  SEG_ON if segs[2] else SEG_OFF)
+
+            # d – bottom
+            h_seg(ox + M,     oy + H - M - T,
+                  ox + W - M, SEG_ON if segs[3] else SEG_OFF)
+
+            # e – bottom-left
+            v_seg(ox + M, mid_y + T + MH,
+                  oy + H - M - T,
+                  SEG_ON if segs[4] else SEG_OFF)
+
+            # f – top-left
+            v_seg(ox + M, oy + M + T,
+                  mid_y - MH,
+                  SEG_ON if segs[5] else SEG_OFF)
+
+            # g – middle
+            h_seg(ox + M,     mid_y,
+                  ox + W - M, SEG_ON if segs[6] else SEG_OFF)
+
+
+# ─────────────────────────────────────────────────────────
 #  MAIN APPLICATION
 # ─────────────────────────────────────────────────────────
 NAV = [
@@ -941,6 +1220,7 @@ NAV = [
     ("ARITH", "Binary\nArithmetic",     "07"),
     ("ENC",   "Priority\nEncoder",      "08"),
     ("DEC",   "3-to-8\nDecoder",        "09"),
+    ("7SEG",  "Hex to\n7-Segment",      "10"),
 ]
 
 class App:
@@ -955,34 +1235,34 @@ class App:
         # ── Sidebar Container ─────────────────────────────
         sb_outer=tk.Frame(self.root,bg=PANEL,width=168)
         sb_outer.pack(side="left",fill="y"); sb_outer.pack_propagate(False)
-        
-        # Bottom Pinned Text
-        tk.Label(sb_outer,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
-        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
-        
-        # Scrollable Canvas
-        sb_canvas = tk.Canvas(sb_outer, bg=PANEL, highlightthickness=0)
-        sb_vsb = ttk.Scrollbar(sb_outer, orient="vertical", command=sb_canvas.yview)
-        sb_canvas.configure(yscrollcommand=sb_vsb.set)
-        
-        sb_vsb.pack(side="right", fill="y")
-        sb_canvas.pack(side="left", fill="both", expand=True)
-        
-        sb = tk.Frame(sb_canvas, bg=PANEL)
-        sb.bind("<Configure>", lambda e: sb_canvas.configure(scrollregion=sb_canvas.bbox("all")))
-        sb_canvas.create_window((0,0), window=sb, anchor="nw", width=150)
-        
-        def _scroll_sb(e):
-            sb_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
-        sb_outer.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
-        sb_outer.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
 
-        # Logo
-        lf=tk.Frame(sb,bg=PANEL); lf.pack(fill="x",pady=(22,8))
+        # ── Logo & Version — STATIC (tidak ikut scroll) ───
+        lf=tk.Frame(sb_outer,bg=PANEL); lf.pack(fill="x",pady=(22,8))
         tk.Label(lf,text="DL",font=("Consolas",30,"bold"),bg=PANEL,fg=BLUE).pack()
         tk.Label(lf,text="SUITE",font=("Segoe UI",7,"bold"),bg=PANEL,fg=GREY).pack()
         tk.Label(lf,text="Digital Logic v2.0",font=("Segoe UI",7),bg=PANEL,fg=GREY_DIM).pack(pady=(0,12))
-        tk.Frame(sb,bg=BORDER,height=1).pack(fill="x",padx=14,pady=(0,8))
+        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,pady=(0,4))
+
+        # ── Bottom Pinned Text — STATIC ───────────────────
+        tk.Label(sb_outer,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
+        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
+
+        # ── Scrollable Nav Menu ───────────────────────────
+        sb_canvas = tk.Canvas(sb_outer, bg=PANEL, highlightthickness=0)
+        sb_vsb = ttk.Scrollbar(sb_outer, orient="vertical", command=sb_canvas.yview)
+        sb_canvas.configure(yscrollcommand=sb_vsb.set)
+
+        sb_vsb.pack(side="right", fill="y")
+        sb_canvas.pack(side="left", fill="both", expand=True)
+
+        sb = tk.Frame(sb_canvas, bg=PANEL)
+        sb.bind("<Configure>", lambda e: sb_canvas.configure(scrollregion=sb_canvas.bbox("all")))
+        sb_canvas.create_window((0,0), window=sb, anchor="nw", width=150)
+
+        def _scroll_sb(e):
+            sb_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
+        sb_canvas.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
+        sb_canvas.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
 
         self.nav_items=[]
         for i,(key,label,num) in enumerate(NAV):
@@ -1019,7 +1299,8 @@ class App:
         p6=PageArith(self.container)
         p7=PageEncoder(self.container)
         p8=PageDecoder(self.container)
-        for p in [p0,p1,p2,p3,p4,p5,p6,p7,p8]:
+        p9=PageHexTo7Seg(self.container)
+        for p in [p0,p1,p2,p3,p4,p5,p6,p7,p8,p9]:
             p.place(relx=0,rely=0,relwidth=1,relheight=1)
             self.pages.append(p)
 
