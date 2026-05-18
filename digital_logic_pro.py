@@ -67,80 +67,132 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 # ─────────────────────────────────────────────────────────
-#  THEME / DESIGN TOKENS
+#  THEME SYSTEM — DARK & LIGHT MODE
 # ─────────────────────────────────────────────────────────
-BG         = "#0d0d0f"
-PANEL      = "#13131a"
-SURFACE    = "#1a1a24"
-SURFACE2   = "#1f1f2e"
-BORDER     = "#2a2a3d"
-BLUE       = "#3b82f6"
-BLUE_DIM   = "#1a2a4a"
-BLUE_GLOW  = "#60a5fa"
-CYAN       = "#22d3ee"
-WHITE      = "#f1f5f9"
-GREY       = "#94a3b8"
-GREY_DIM   = "#475569"
-RED        = "#ef4444"
-RED_DIM    = "#7f1d1d"
-ORANGE     = "#f97316"
-GREEN      = "#22c55e"
-YELLOW     = "#eab308"
 
-F_HEAD   = ("Segoe UI", 11, "bold")
-F_BODY   = ("Segoe UI", 10)
-F_SMALL  = ("Segoe UI", 8)
-F_MONO   = ("Consolas", 11)
-F_MONO_S = ("Consolas", 9)
-F_CALC   = ("Consolas", 24, "bold")
-F_CALC_S = ("Consolas", 13)
-F_BTN    = ("Segoe UI", 9,  "bold")
-F_NAV    = ("Segoe UI", 8,  "bold")
+DARK_THEME = {
+    "BG":         "#08080c",
+    "PANEL":      "#0f0f18",
+    "SURFACE":    "#161622",
+    "SURFACE2":   "#1c1c2e",
+    "SURFACE3":   "#222236",
+    "BORDER":     "#2e2e4a",
+    "BORDER_HI":  "#4a4a7a",
+    "BLUE":       "#4f8ef7",
+    "BLUE_DIM":   "#15233d",
+    "BLUE_MID":   "#2a4a80",
+    "BLUE_GLOW":  "#7eb8ff",
+    "BLUE_DEEP":  "#0a1628",
+    "CYAN":       "#00e5ff",
+    "CYAN_DIM":   "#003d4d",
+    "WHITE":      "#eef2ff",
+    "GREY":       "#8892b0",
+    "GREY_DIM":   "#3d4466",
+    "RED":        "#ff4d6a",
+    "RED_DIM":    "#3d0a14",
+    "RED_MID":    "#7a1525",
+    "ORANGE":     "#ff8c42",
+    "ORANGE_DIM": "#3d1f0a",
+    "GREEN":      "#39e07a",
+    "GREEN_DIM":  "#0a2e1a",
+    "YELLOW":     "#ffe033",
+    "YELLOW_DIM": "#2e2500",
+    "PURPLE":     "#a78bfa",
+    "PURPLE_DIM": "#1e1040",
+    "NAV_ACTIVE_BG": "#1a2a4a",
+    "NAV_ACTIVE_FG": "#7eb8ff",
+}
+
+LIGHT_THEME = {
+    "BG":         "#f5f7fa",
+    "PANEL":      "#ffffff",
+    "SURFACE":    "#f0f4ff",
+    "SURFACE2":   "#e8edf8",
+    "SURFACE3":   "#dce3f5",
+    "BORDER":     "#c4cde0",
+    "BORDER_HI":  "#6b8dd6",
+    "BLUE":       "#2563eb",
+    "BLUE_DIM":   "#e0eaff",
+    "BLUE_MID":   "#bfcffd",
+    "BLUE_GLOW":  "#1a4dcc",
+    "BLUE_DEEP":  "#edf2ff",
+    "CYAN":       "#0369a1",
+    "CYAN_DIM":   "#e0f2fe",
+    "WHITE":      "#111827",
+    "GREY":       "#374151",
+    "GREY_DIM":   "#6b7280",
+    "RED":        "#dc2626",
+    "RED_DIM":    "#fee2e2",
+    "RED_MID":    "#ef4444",
+    "ORANGE":     "#c2410c",
+    "ORANGE_DIM": "#fff7ed",
+    "GREEN":      "#15803d",
+    "GREEN_DIM":  "#dcfce7",
+    "YELLOW":     "#92400e",
+    "YELLOW_DIM": "#fffbeb",
+    "PURPLE":     "#6d28d9",
+    "PURPLE_DIM": "#ede9fe",
+    "NAV_ACTIVE_BG": "#dbeafe",
+    "NAV_ACTIVE_FG": "#1d4ed8",
+}
+
+_current_theme = DARK_THEME
+
+def _t(key):
+    return _current_theme[key]
+
+# Dynamic theme accessors — used throughout the code
+def _bg():         return _current_theme["BG"]
+def _panel():      return _current_theme["PANEL"]
+def _surface():    return _current_theme["SURFACE"]
+def _surface2():   return _current_theme["SURFACE2"]
+def _surface3():   return _current_theme["SURFACE3"]
+
+# Shorthand globals — reassigned on theme switch via apply_theme()
+BG         = _current_theme["BG"]
+PANEL      = _current_theme["PANEL"]
+SURFACE    = _current_theme["SURFACE"]
+SURFACE2   = _current_theme["SURFACE2"]
+SURFACE3   = _current_theme["SURFACE3"]
+BORDER     = _current_theme["BORDER"]
+BORDER_HI  = _current_theme["BORDER_HI"]
+BLUE       = _current_theme["BLUE"]
+BLUE_DIM   = _current_theme["BLUE_DIM"]
+BLUE_MID   = _current_theme["BLUE_MID"]
+BLUE_GLOW  = _current_theme["BLUE_GLOW"]
+BLUE_DEEP  = _current_theme["BLUE_DEEP"]
+CYAN       = _current_theme["CYAN"]
+CYAN_DIM   = _current_theme["CYAN_DIM"]
+WHITE      = _current_theme["WHITE"]
+GREY       = _current_theme["GREY"]
+GREY_DIM   = _current_theme["GREY_DIM"]
+RED        = _current_theme["RED"]
+RED_DIM    = _current_theme["RED_DIM"]
+RED_MID    = _current_theme["RED_MID"]
+ORANGE     = _current_theme["ORANGE"]
+ORANGE_DIM = _current_theme["ORANGE_DIM"]
+GREEN      = _current_theme["GREEN"]
+GREEN_DIM  = _current_theme["GREEN_DIM"]
+YELLOW     = _current_theme["YELLOW"]
+YELLOW_DIM = _current_theme["YELLOW_DIM"]
+PURPLE     = _current_theme["PURPLE"]
+PURPLE_DIM = _current_theme["PURPLE_DIM"]
+NAV_ACTIVE_BG  = _current_theme["NAV_ACTIVE_BG"]
+NAV_ACTIVE_FG  = _current_theme["NAV_ACTIVE_FG"]
+
+F_HEAD   = ("Segoe UI", 12, "bold")
+F_BODY   = ("Segoe UI", 11)
+F_SMALL  = ("Segoe UI", 9)
+F_MONO   = ("Consolas", 12)
+F_MONO_S = ("Consolas", 10)
+F_CALC   = ("Consolas", 26, "bold")
+F_CALC_S = ("Consolas", 14)
+F_BTN    = ("Segoe UI", 10, "bold")
+F_NAV    = ("Segoe UI", 9,  "bold")
 
 # ─────────────────────────────────────────────────────────
-#  WIDGET HELPERS
+#  WIDGET HELPERS  v3 — MEGAH EDITION
 # ─────────────────────────────────────────────────────────
-def styled_entry(parent, font=None, **kw):
-    return tk.Entry(parent, font=font or F_MONO,
-                    bg=SURFACE, fg=WHITE, insertbackground=BLUE_GLOW,
-                    relief="flat", highlightthickness=1,
-                    highlightbackground=BORDER, highlightcolor=BLUE, **kw)
-
-def styled_text(parent, height=8):
-    t = tk.Text(parent, font=F_MONO, bg=SURFACE, fg=WHITE,
-                relief="flat", highlightthickness=1,
-                highlightbackground=BORDER, highlightcolor=BLUE,
-                insertbackground=BLUE_GLOW, height=height,
-                padx=12, pady=10, wrap="word",
-                selectbackground=BLUE_DIM, selectforeground=WHITE)
-    t.tag_config("heading", foreground=BLUE_GLOW, font=("Consolas",10,"bold"))
-    t.tag_config("result",  foreground=GREEN,     font=("Consolas",12,"bold"))
-    t.tag_config("muted",   foreground=GREY)
-    t.tag_config("var",     foreground=CYAN)
-    t.tag_config("warn",    foreground=YELLOW)
-    t.tag_config("err",     foreground=RED)
-    return t
-
-def section_label(parent, text):
-    f = tk.Frame(parent, bg=PANEL)
-    f.pack(fill="x", pady=(14, 4))
-    tk.Frame(f, bg=BLUE, width=3).pack(side="left", fill="y", padx=(0,8))
-    tk.Label(f, text=text, font=F_HEAD, bg=PANEL, fg=WHITE).pack(side="left")
-
-def hint_label(parent, text):
-    tk.Label(parent, text=text, font=F_SMALL, bg=PANEL,
-             fg=GREY_DIM, justify="left").pack(anchor="w", pady=(0,6))
-
-def action_btn(parent, text, cmd, color=BLUE):
-    b = tk.Button(parent, text=text, font=F_BTN,
-                  bg=color, fg=WHITE,
-                  activebackground=BLUE_GLOW if color==BLUE else color,
-                  activeforeground=BG if color==BLUE else WHITE,
-                  relief="flat", cursor="hand2", command=cmd, pady=8)
-    lighter = _lighten(color)
-    b.bind("<Enter>", lambda e: b.config(bg=lighter))
-    b.bind("<Leave>", lambda e: b.config(bg=color))
-    return b
 
 def _lighten(hex_color, amount=40):
     try:
@@ -149,13 +201,132 @@ def _lighten(hex_color, amount=40):
         return f"#{r:02x}{g:02x}{b:02x}"
     except: return hex_color
 
+def _darken(hex_color, amount=25):
+    try:
+        r=int(hex_color[1:3],16); g=int(hex_color[3:5],16); b=int(hex_color[5:7],16)
+        r=max(0,r-amount); g=max(0,g-amount); b=max(0,b-amount)
+        return f"#{r:02x}{g:02x}{b:02x}"
+    except: return hex_color
+
+def styled_entry(parent, font=None, **kw):
+    e = tk.Entry(parent, font=font or F_MONO,
+                 bg=SURFACE, fg=WHITE, insertbackground=CYAN,
+                 relief="flat", highlightthickness=2,
+                 highlightbackground=BORDER, highlightcolor=CYAN, **kw)
+    def _on_focus_in(ev):
+        e.config(highlightbackground=BLUE, bg=SURFACE3)
+    def _on_focus_out(ev):
+        e.config(highlightbackground=BORDER, bg=SURFACE)
+    def _on_enter(ev):
+        if e["state"] != "disabled":
+            e.config(highlightbackground=BORDER_HI)
+    def _on_leave(ev):
+        if e["state"] != "disabled":
+            if e is not e.focus_get():
+                e.config(highlightbackground=BORDER)
+    e.bind("<FocusIn>",  _on_focus_in)
+    e.bind("<FocusOut>", _on_focus_out)
+    e.bind("<Enter>",    _on_enter)
+    e.bind("<Leave>",    _on_leave)
+    return e
+
+def styled_text(parent, height=8):
+    t = tk.Text(parent, font=F_MONO, bg=SURFACE, fg=WHITE,
+                relief="flat", highlightthickness=2,
+                highlightbackground=BORDER, highlightcolor=CYAN,
+                insertbackground=CYAN, height=height,
+                padx=12, pady=10, wrap="word",
+                selectbackground=BLUE_MID, selectforeground=WHITE)
+    t.tag_config("heading", foreground=BLUE_GLOW, font=("Consolas",10,"bold"))
+    t.tag_config("result",  foreground=GREEN,     font=("Consolas",12,"bold"))
+    t.tag_config("muted",   foreground=GREY)
+    t.tag_config("var",     foreground=CYAN)
+    t.tag_config("warn",    foreground=YELLOW)
+    t.tag_config("err",     foreground=RED)
+    t.bind("<Enter>", lambda e: t.config(highlightbackground=BORDER_HI))
+    t.bind("<Leave>", lambda e: t.config(highlightbackground=BORDER))
+    return t
+
+def section_label(parent, text):
+    f = tk.Frame(parent, bg=PANEL)
+    f.pack(fill="x", pady=(14, 4))
+    # thicker glow bar on left
+    bar = tk.Frame(f, bg=BLUE, width=4)
+    bar.pack(side="left", fill="y", padx=(0, 10))
+    lbl = tk.Label(f, text=text, font=F_HEAD, bg=PANEL, fg=WHITE)
+    lbl.pack(side="left")
+    # animated: bar brightens on hover
+    def _enter(e): bar.config(bg=CYAN)
+    def _leave(e): bar.config(bg=BLUE)
+    for w in (f, lbl, bar):
+        w.bind("<Enter>", _enter)
+        w.bind("<Leave>", _leave)
+
+def hint_label(parent, text):
+    tk.Label(parent, text=text, font=F_SMALL, bg=PANEL,
+             fg=GREY_DIM, justify="left").pack(anchor="w", pady=(0,6))
+
+def action_btn(parent, text, cmd, color=BLUE):
+    """Premium action button with glow hover, press-down effect."""
+    press_color  = _darken(color, 30)
+    hover_color  = _lighten(color, 30)
+    glow_border  = _lighten(color, 60)
+
+    b = tk.Button(parent, text=text, font=F_BTN,
+                  bg=color, fg=WHITE,
+                  activebackground=press_color,
+                  activeforeground=WHITE,
+                  relief="flat", cursor="hand2",
+                  command=cmd, pady=8,
+                  padx=14,
+                  highlightthickness=2,
+                  highlightbackground=_darken(color, 15),
+                  highlightcolor=glow_border,
+                  bd=0)
+
+    def _enter(e):
+        b.config(bg=hover_color,
+                 highlightbackground=glow_border,
+                 fg=BG if color not in (RED_DIM, GREY_DIM, BLUE_DIM, ORANGE_DIM, GREEN_DIM) else WHITE)
+    def _leave(e):
+        b.config(bg=color,
+                 highlightbackground=_darken(color, 15),
+                 fg=WHITE)
+    def _press(e):   b.config(bg=press_color, relief="sunken")
+    def _release(e): b.config(bg=hover_color, relief="flat")
+
+    b.bind("<Enter>",          _enter)
+    b.bind("<Leave>",          _leave)
+    b.bind("<ButtonPress-1>",  _press)
+    b.bind("<ButtonRelease-1>",_release)
+    return b
+
 def info_box(parent, title, body):
-    box = tk.Frame(parent, bg=BLUE_DIM, padx=12, pady=10)
-    box.pack(fill="x", pady=(0,12))
-    tk.Label(box, text="ℹ  "+title, font=("Segoe UI",8,"bold"),
-             bg=BLUE_DIM, fg=BLUE_GLOW).pack(anchor="w")
-    tk.Label(box, text=body, font=F_SMALL, bg=BLUE_DIM, fg=GREY,
-             justify="left", wraplength=700).pack(anchor="w", pady=(3,0))
+    """Glowing info card with left accent bar."""
+    outer = tk.Frame(parent, bg=BLUE_MID, padx=1, pady=1)
+    outer.pack(fill="x", pady=(0,14))
+    inner = tk.Frame(outer, bg=BLUE_DEEP, padx=0, pady=0)
+    inner.pack(fill="both", expand=True)
+
+    left_bar = tk.Frame(inner, bg=BLUE, width=4)
+    left_bar.pack(side="left", fill="y")
+    content = tk.Frame(inner, bg=BLUE_DEEP, padx=14, pady=10)
+    content.pack(side="left", fill="both", expand=True)
+
+    tk.Label(content, text="⬡  "+title, font=("Segoe UI", 8, "bold"),
+             bg=BLUE_DEEP, fg=CYAN).pack(anchor="w")
+    tk.Label(content, text=body, font=F_SMALL, bg=BLUE_DEEP, fg=GREY,
+             justify="left", wraplength=700).pack(anchor="w", pady=(4,0))
+
+    def _enter(e):
+        outer.config(bg=BLUE)
+        left_bar.config(bg=CYAN)
+    def _leave(e):
+        outer.config(bg=BLUE_MID)
+        left_bar.config(bg=BLUE)
+    for w in (outer, inner, content, left_bar):
+        w.bind("<Enter>", _enter)
+        w.bind("<Leave>", _leave)
 
 # ─────────────────────────────────────────────────────────
 #  PAGE BASE
@@ -195,27 +366,32 @@ class PageCalc(Page):
         self.ws_btns = {}
         for label, bits in [("QWORD 64",64),("DWORD 32",32),("WORD 16",16),("BYTE 8",8)]:
             b = tk.Button(wsf, text=label, font=("Consolas",8,"bold"),
-                          bg=SURFACE, fg=GREY, relief="flat", cursor="hand2", padx=10, pady=4,
+                          bg=SURFACE2, fg=GREY, relief="flat", cursor="hand2", padx=10, pady=4,
+                          highlightthickness=1, highlightbackground=BORDER, bd=0,
                           command=lambda b=bits: self._set_ws(b))
             b.pack(side="left", padx=2)
+            b.bind("<Enter>", lambda e, w=b: w.config(bg=SURFACE3, fg=WHITE, highlightbackground=BORDER_HI) if w.cget("bg") != BLUE else None)
+            b.bind("<Leave>", lambda e, w=b: w.config(bg=SURFACE2, fg=GREY, highlightbackground=BORDER) if w.cget("bg") != BLUE else None)
             self.ws_btns[bits] = b
         self._set_ws(64, init=True)
 
         # ── Multi-base display ─────────────────────────────
-        disp = tk.Frame(self, bg=SURFACE2, highlightthickness=1, highlightbackground=BORDER)
+        disp = tk.Frame(self, bg=SURFACE2, highlightthickness=2, highlightbackground=BORDER)
         disp.pack(fill="x", pady=(0,6))
+        disp.bind("<Enter>", lambda e: disp.config(highlightbackground=BLUE_MID))
+        disp.bind("<Leave>", lambda e: disp.config(highlightbackground=BORDER))
         self.disp_vars = {}
         self.disp_lbls = {}
         specs = [
-            ("HEX","hex", CYAN,    F_CALC_S),
-            ("DEC","dec", WHITE,   F_CALC),
-            ("OCT","oct", GREY,    F_CALC_S),
+            ("HEX","hex", CYAN,      F_CALC_S),
+            ("DEC","dec", WHITE,     F_CALC),
+            ("OCT","oct", GREY,      F_CALC_S),
             ("BIN","bin", BLUE_GLOW, ("Consolas",9)),
         ]
         for lbl, key, clr, fnt in specs:
             row = tk.Frame(disp, bg=SURFACE2); row.pack(fill="x", padx=14, pady=2)
             tk.Label(row, text=lbl, font=("Consolas",8,"bold"),
-                     bg=SURFACE2, fg=BLUE, width=4, anchor="w").pack(side="left")
+                     bg=SURFACE2, fg=BLUE_GLOW, width=4, anchor="w").pack(side="left")
             var = tk.StringVar(value="0")
             self.disp_vars[key] = var
             l = tk.Label(row, textvariable=var, font=fnt,
@@ -234,46 +410,53 @@ class PageCalc(Page):
         self.mode_btns = {}
         for m in ["HEX","DEC","OCT","BIN"]:
             b = tk.Button(mf, text=m, font=("Consolas",8,"bold"),
-                          bg=SURFACE, fg=GREY, relief="flat", cursor="hand2", padx=14, pady=5,
+                          bg=SURFACE2, fg=GREY, relief="flat", cursor="hand2", padx=14, pady=5,
+                          highlightthickness=1, highlightbackground=BORDER, bd=0,
                           command=lambda m=m: self._set_mode(m))
             b.pack(side="left", padx=2)
+            b.bind("<Enter>", lambda e, w=b: w.config(bg=SURFACE3, fg=WHITE, highlightbackground=BLUE) if w.cget("bg") != BLUE else None)
+            b.bind("<Leave>", lambda e, w=b: w.config(bg=SURFACE2, fg=GREY, highlightbackground=BORDER) if w.cget("bg") != BLUE else None)
             self.mode_btns[m] = b
         self._set_mode("DEC", init=True)
 
         # ── Keypad ─────────────────────────────────────────
-        pad = tk.Frame(self, bg=PANEL); pad.pack(fill="x")
+        pad = tk.Frame(self, bg=BG); pad.pack(fill="x")
 
         # [text, col, row, colspan, bg_color]
         keys = [
             # row 0 – bitwise & special
-            ("AND",0,0,1,BLUE_DIM),("OR", 1,0,1,BLUE_DIM),("XOR",2,0,1,BLUE_DIM),("NOT",3,0,1,BLUE_DIM),
-            ("<<", 4,0,1,BLUE_DIM),(">>",5,0,1,BLUE_DIM),("MOD",6,0,1,BLUE_DIM),("CLR",7,0,1,RED_DIM),
+            ("AND",0,0,1,BLUE_MID),("OR", 1,0,1,BLUE_MID),("XOR",2,0,1,BLUE_MID),("NOT",3,0,1,BLUE_MID),
+            ("<<", 4,0,1,BLUE_MID),(">>",5,0,1,BLUE_MID),("MOD",6,0,1,BLUE_MID),("CLR",7,0,1,RED_MID),
             # row 1 – hex digits + parens
-            ("A",  0,1,1,SURFACE2),("B", 1,1,1,SURFACE2),("C", 2,1,1,SURFACE2),("D", 3,1,1,SURFACE2),
-            ("E",  4,1,1,SURFACE2),("F", 5,1,1,SURFACE2),("(",6,1,1,SURFACE), (")",7,1,1,SURFACE),
+            ("A",  0,1,1,SURFACE3),("B", 1,1,1,SURFACE3),("C", 2,1,1,SURFACE3),("D", 3,1,1,SURFACE3),
+            ("E",  4,1,1,SURFACE3),("F", 5,1,1,SURFACE3),("(",6,1,1,SURFACE2), (")",7,1,1,SURFACE2),
             # row 2
-            ("7",  0,2,1,SURFACE), ("8", 1,2,1,SURFACE), ("9", 2,2,1,SURFACE), ("÷",3,2,1,ORANGE),
-            ("MS", 4,2,1,GREY_DIM),("MR",5,2,1,GREY_DIM),("M+",6,2,1,GREY_DIM),("⌫",7,2,1,RED_DIM),
+            ("7",  0,2,1,SURFACE2), ("8", 1,2,1,SURFACE2), ("9", 2,2,1,SURFACE2), ("÷",3,2,1,ORANGE_DIM),
+            ("MS", 4,2,1,GREY_DIM),("MR",5,2,1,GREY_DIM),("M+",6,2,1,GREY_DIM),("⌫",7,2,1,RED_MID),
             # row 3
-            ("4",  0,3,1,SURFACE), ("5", 1,3,1,SURFACE), ("6", 2,3,1,SURFACE), ("×",3,3,1,ORANGE),
-            ("±",  4,3,1,SURFACE2),("1/x",5,3,1,SURFACE2),("x²",6,3,1,SURFACE2),("√",7,3,1,SURFACE2),
+            ("4",  0,3,1,SURFACE2), ("5", 1,3,1,SURFACE2), ("6", 2,3,1,SURFACE2), ("×",3,3,1,ORANGE_DIM),
+            ("±",  4,3,1,SURFACE3),("1/x",5,3,1,SURFACE3),("x²",6,3,1,SURFACE3),("√",7,3,1,SURFACE3),
             # row 4
-            ("1",  0,4,1,SURFACE), ("2", 1,4,1,SURFACE), ("3", 2,4,1,SURFACE), ("−",3,4,1,ORANGE),
+            ("1",  0,4,1,SURFACE2), ("2", 1,4,1,SURFACE2), ("3", 2,4,1,SURFACE2), ("−",3,4,1,ORANGE_DIM),
             # row 5
-            ("0",  0,5,2,SURFACE), (".",2,5,1,SURFACE),   ("+",3,5,1,ORANGE),
+            ("0",  0,5,2,SURFACE2), (".",2,5,1,SURFACE2),   ("+",3,5,1,ORANGE_DIM),
             ("=",  4,5,4,BLUE),
         ]
         self.key_btns = {}
         self.key_colors = {}
         for (lbl,c,r,cs,color) in keys:
+            hover_c = _lighten(color, 35)
+            press_c = _darken(color, 20)
             b = tk.Button(pad, text=lbl, font=("Segoe UI",9,"bold"),
                           bg=color, fg=WHITE, relief="flat", cursor="hand2",
+                          highlightthickness=1, highlightbackground=_lighten(color, 10), bd=0,
                           command=lambda l=lbl: self._key(l))
             b.grid(row=r, column=c, columnspan=cs,
                    sticky="nsew", padx=2, pady=2, ipady=9)
-            lighter = _lighten(color, 30)
-            b.bind("<Enter>", lambda e,b=b,lc=lighter: b.config(bg=lc) if b.cget("state")=="normal" else None)
-            b.bind("<Leave>", lambda e,b=b,oc=color:   b.config(bg=oc) if b.cget("state")=="normal" else None)
+            b.bind("<Enter>",          lambda e,b=b,hc=hover_c,bc=color:  b.config(bg=hc,  highlightbackground=_lighten(bc,50)) if b.cget("state")=="normal" else None)
+            b.bind("<Leave>",          lambda e,b=b,oc=color:              b.config(bg=oc,  highlightbackground=_lighten(oc,10)) if b.cget("state")=="normal" else None)
+            b.bind("<ButtonPress-1>",  lambda e,b=b,pc=press_c:            b.config(bg=pc,  relief="sunken") if b.cget("state")=="normal" else None)
+            b.bind("<ButtonRelease-1>",lambda e,b=b,hc=hover_c:            b.config(bg=hc,  relief="flat")   if b.cget("state")=="normal" else None)
             self.key_btns[lbl] = b
             self.key_colors[lbl] = color
 
@@ -289,15 +472,17 @@ class PageCalc(Page):
         self.word_size = bits
         self.value &= self._mask()
         for b2, btn in self.ws_btns.items():
-            btn.config(bg=BLUE if b2==bits else SURFACE,
-                       fg=WHITE if b2==bits else GREY)
+            btn.config(bg=BLUE if b2==bits else SURFACE2,
+                       fg=WHITE if b2==bits else GREY,
+                       highlightbackground=BLUE_GLOW if b2==bits else BORDER)
         if not init: self._refresh()
 
     def _set_mode(self, m, init=False):
         self.mode = m
         for m2, btn in self.mode_btns.items():
-            btn.config(bg=BLUE if m2==m else SURFACE,
-                       fg=WHITE if m2==m else GREY)
+            btn.config(bg=BLUE if m2==m else SURFACE2,
+                       fg=WHITE if m2==m else GREY,
+                       highlightbackground=BLUE_GLOW if m2==m else BORDER)
         
         if hasattr(self, 'disp_lbls'):
             key_map = {"HEX": "hex", "DEC": "dec", "OCT": "oct", "BIN": "bin"}
@@ -305,7 +490,7 @@ class PageCalc(Page):
             default_colors = {"hex": CYAN, "dec": WHITE, "oct": GREY, "bin": BLUE_GLOW}
             for k, lbl in self.disp_lbls.items():
                 if k == active_key:
-                    lbl.config(font=F_CALC, fg=WHITE)
+                    lbl.config(font=F_CALC, fg=CYAN)
                 else:
                     lbl.config(font=("Consolas",9) if k=="bin" else F_CALC_S, fg=default_colors[k])
                     
@@ -317,7 +502,7 @@ class PageCalc(Page):
                     if lbl in valid_chars:
                         btn.config(state="normal", bg=self.key_colors[lbl], fg=WHITE)
                     else:
-                        btn.config(state="disabled", bg=PANEL, fg=BORDER)
+                        btn.config(state="disabled", bg=BG, fg=GREY_DIM)
                         
         if not init: self._refresh()
 
@@ -607,7 +792,7 @@ class PageGate(Page):
         self.status_var=tk.StringVar(value="")
         tk.Label(self,textvariable=self.status_var,font=F_SMALL,bg=PANEL,fg=GREY).pack(anchor="w",pady=(0,6))
         # image canvas with scrollbars
-        img_outer=tk.Frame(self,bg=SURFACE,highlightthickness=1,highlightbackground=BORDER)
+        img_outer=tk.Frame(self,bg=SURFACE,highlightthickness=2,highlightbackground=BORDER_HI)
         img_outer.pack(fill="both",expand=True)
         self.c_img=tk.Canvas(img_outer,bg=SURFACE,highlightthickness=0)
         vsb=ttk.Scrollbar(img_outer,orient="vertical",command=self.c_img.yview)
@@ -632,7 +817,13 @@ class PageGate(Page):
             from PIL import Image
 
             parsed=parse_sop(expr)
-            schemdraw.theme('dark')
+            
+            # Evaluasi state tema dinamis
+            if _current_theme == DARK_THEME:
+                schemdraw.theme('dark')
+            else:
+                schemdraw.theme('default') # Stroke hitam untuk Light Mode
+                
             d=schemdraw.Drawing(canvas='matplotlib')
             outs,y=[],0
             for term in parsed:
@@ -705,7 +896,7 @@ class PageTruthTable(Page):
         action_btn(inp,"⚙  GENERATE TABLE",self.build,BLUE).pack(side="left")
         if on_export:
             action_btn(inp,"→ EXPORT TO EQUATION GEN",self.do_export,BLUE_DIM).pack(side="left",padx=(8,0))
-        outer=tk.Frame(self,bg=SURFACE,highlightthickness=1,highlightbackground=BORDER)
+        outer=tk.Frame(self,bg=SURFACE,highlightthickness=2,highlightbackground=BORDER_HI)
         outer.pack(fill="both",expand=True,pady=(10,0))
         canvas=tk.Canvas(outer,bg=SURFACE,highlightthickness=0)
         vsb=ttk.Scrollbar(outer,orient="vertical",command=canvas.yview)
@@ -869,13 +1060,15 @@ class PageEncoder(Page):
         section_label(self, "INPUT JALUR (CHECKBOX)")
         hint_label(self, "I7 memiliki prioritas tertinggi")
         
-        f = tk.Frame(self, bg=SURFACE, highlightthickness=1, highlightbackground=BORDER, padx=14, pady=14)
+        f = tk.Frame(self, bg=SURFACE2, highlightthickness=2, highlightbackground=BORDER, padx=14, pady=14)
         f.pack(fill="x", pady=10)
+        f.bind("<Enter>", lambda e: f.config(highlightbackground=BLUE_MID))
+        f.bind("<Leave>", lambda e: f.config(highlightbackground=BORDER))
         
         self.enc_vars = [tk.IntVar() for _ in range(8)]
         for i in range(7, -1, -1):
             chk = tk.Checkbutton(f, text=f"I{i}", variable=self.enc_vars[i], font=F_MONO,
-                                 bg=SURFACE, fg=WHITE, selectcolor=SURFACE2, activebackground=SURFACE, activeforeground=CYAN)
+                                 bg=SURFACE2, fg=WHITE, selectcolor=BLUE_DIM, activebackground=SURFACE3, activeforeground=CYAN)
             chk.pack(side="left", expand=True)
 
         action_btn(self, "⚙ ENCODE", self.calc_encoder, BLUE_DIM).pack(anchor="w", pady=16)
@@ -1207,6 +1400,248 @@ class PageHexTo7Seg(Page):
                   ox + W - M, SEG_ON if segs[6] else SEG_OFF)
 
 
+
+
+# ─────────────────────────────────────────────────────────
+#  PAGE 11 — FULL ADDER 4-BIT
+# ─────────────────────────────────────────────────────────
+class PageFullAdder4bit(Page):
+    """
+    Simulasi Full Adder 4-bit ripple-carry.
+    Menampilkan setiap tahap 1-bit adder secara visual,
+    termasuk carry propagation, serta hasil akhir 5-bit.
+    """
+    def __init__(self, parent):
+        super().__init__(parent)
+        info_box(self, "FULL ADDER 4-BIT (RIPPLE CARRY)",
+                 "Simulasi penjumlahan 2 bilangan biner 4-bit dengan Full Adder Ripple Carry.\n"
+                 "• Setiap bit dijumlahkan satu per satu dari LSB (bit-0) ke MSB (bit-3)\n"
+                 "• Carry out setiap tahap menjadi Carry in tahap berikutnya\n"
+                 "• Hasil akhir bisa 5-bit jika terjadi overflow (Cout dari bit-3 = 1)\n"
+                 "• Rumus per bit: Sum = A ⊕ B ⊕ Cin  |  Cout = (A·B) + (B·Cin) + (A·Cin)")
+        self._build()
+
+    def _build(self):
+        # ── Input Area ────────────────────────────────────
+        section_label(self, "INPUT BINER 4-BIT")
+        hint_label(self, "Masukkan tepat 4 digit biner (0/1) untuk A dan B  ·  Contoh: A=1011  B=0110")
+
+        inp_row = tk.Frame(self, bg=PANEL); inp_row.pack(fill="x", pady=(0, 8))
+
+        tk.Label(inp_row, text="A (4-bit):", font=F_BODY, bg=PANEL, fg=GREY, width=12, anchor="w").pack(side="left")
+        self.entry_a = styled_entry(inp_row, width=10)
+        self.entry_a.insert(0, "1011")
+        self.entry_a.pack(side="left", ipady=5, padx=(0, 20))
+
+        tk.Label(inp_row, text="B (4-bit):", font=F_BODY, bg=PANEL, fg=GREY, width=12, anchor="w").pack(side="left")
+        self.entry_b = styled_entry(inp_row, width=10)
+        self.entry_b.insert(0, "0110")
+        self.entry_b.pack(side="left", ipady=5, padx=(0, 20))
+
+        tk.Label(inp_row, text="Cin (awal):", font=F_BODY, bg=PANEL, fg=GREY, width=12, anchor="w").pack(side="left")
+        self.entry_cin = styled_entry(inp_row, width=5)
+        self.entry_cin.insert(0, "0")
+        self.entry_cin.pack(side="left", ipady=5, padx=(0, 20))
+
+        action_btn(self, "⚙  HITUNG FULL ADDER 4-BIT", self._calc, BLUE).pack(anchor="w", pady=(10, 14))
+
+        # ── Step-by-step visual table ──────────────────────
+        section_label(self, "PROSES PER-BIT (LSB → MSB)")
+
+        tbl_outer = tk.Frame(self, bg=SURFACE, highlightthickness=2, highlightbackground=BORDER_HI)
+        tbl_outer.pack(fill="x", pady=(0, 14))
+
+        # Header
+        hrow = tk.Frame(tbl_outer, bg=BLUE_DIM); hrow.pack(fill="x")
+        cols  = ["BIT", "A", "B", "Cin", "Sum", "Cout", "Ekspresi"]
+        widths= [6,      5,   5,   6,     6,     7,      45]
+        for col, w in zip(cols, widths):
+            tk.Label(hrow, text=col, font=("Consolas",9,"bold"),
+                     bg=BLUE_DIM, fg=BLUE_GLOW, width=w, anchor="center").pack(side="left", padx=2, pady=5)
+
+        self.step_frame = tk.Frame(tbl_outer, bg=SURFACE)
+        self.step_frame.pack(fill="x")
+
+        # ── Result display ─────────────────────────────────
+        section_label(self, "HASIL AKHIR")
+
+        res_outer = tk.Frame(self, bg=BLUE_MID, padx=1, pady=1)
+        res_outer.pack(fill="x", pady=(0, 10))
+        res_inner = tk.Frame(res_outer, bg=BLUE_DEEP, padx=20, pady=16)
+        res_inner.pack(fill="both", expand=True)
+
+        # Row: labels
+        lrow = tk.Frame(res_inner, bg=BLUE_DEEP); lrow.pack(anchor="w", pady=(0,6))
+        self.res_labels = {}
+        for key, text in [("A","A"), ("B","B"), ("Cin","Cin"), ("sum5","A+B+Cin"), ("dec","Desimal"), ("hex","Hex"), ("overflow","Status")]:
+            r = tk.Frame(lrow, bg=BLUE_DEEP); r.pack(side="left", padx=14)
+            tk.Label(r, text=text, font=("Consolas",8), bg=BLUE_DEEP, fg=GREY).pack()
+            var = tk.StringVar(value="—")
+            lbl = tk.Label(r, textvariable=var, font=("Consolas",15,"bold"), bg=BLUE_DEEP, fg=BLUE_GLOW)
+            lbl.pack()
+            self.res_labels[key] = (var, lbl)
+
+        # ── Circuit diagram canvas ────────────────────────
+        section_label(self, "DIAGRAM RIPPLE CARRY")
+        hint_label(self, "Blok FA = Full Adder 1-bit · Carry mengalir dari kiri (FA0) ke kanan (FA3)")
+
+        self.diag_canvas = tk.Canvas(self, bg=SURFACE, height=160,
+                                     highlightthickness=2, highlightbackground=BORDER)
+        self.diag_canvas.pack(fill="x", pady=(0, 4))
+        self._draw_empty_diagram()
+
+    def _draw_empty_diagram(self):
+        self.diag_canvas.delete("all")
+        self.diag_canvas.create_text(20, 80, text="← Klik  ⚙ HITUNG  untuk menampilkan diagram ripple carry",
+                                     anchor="w", fill=GREY_DIM, font=F_SMALL)
+
+    def _calc(self):
+        a_str   = self.entry_a.get().strip()
+        b_str   = self.entry_b.get().strip()
+        cin_str = self.entry_cin.get().strip()
+
+        # Validate
+        if len(a_str) != 4 or not all(c in "01" for c in a_str):
+            messagebox.showerror("Error", "Input A harus tepat 4 digit biner (0/1)!"); return
+        if len(b_str) != 4 or not all(c in "01" for c in b_str):
+            messagebox.showerror("Error", "Input B harus tepat 4 digit biner (0/1)!"); return
+        if cin_str not in ("0","1"):
+            messagebox.showerror("Error", "Cin awal harus 0 atau 1!"); return
+
+        # Bits: index 0 = LSB, 3 = MSB  (reverse string)
+        a_bits   = [int(c) for c in reversed(a_str)]
+        b_bits   = [int(c) for c in reversed(b_str)]
+        cin_init = int(cin_str)
+
+        steps = []  # list of (bit_idx, a, b, cin, sum_, cout, expr)
+        carry = cin_init
+        sum_bits = []
+
+        for i in range(4):
+            a = a_bits[i]; b = b_bits[i]; cin = carry
+            s   = a ^ b ^ cin
+            cout = (a & b) | (b & cin) | (a & cin)
+            expr = f"S={a}⊕{b}⊕{cin}={s}  Cout=({a}·{b})+(·{cin})=({a&b}|{b&cin}|{a&cin})={cout}"
+            steps.append((i, a, b, cin, s, cout, expr))
+            sum_bits.append(s)
+            carry = cout
+
+        final_cout = carry
+        # Rebuild sum string MSB first
+        sum5_bits = [final_cout] + list(reversed(sum_bits))  # 5 bits, MSB first
+        sum5_str  = "".join(str(b) for b in sum5_bits)
+        sum_dec   = int(sum5_str, 2)
+        a_dec     = int(a_str, 2)
+        b_dec     = int(b_str, 2)
+        overflow  = "OVERFLOW! (Cout=1)" if final_cout else "OK (Cout=0)"
+        overflow_color = RED if final_cout else GREEN
+
+        # Update step table
+        for w in self.step_frame.winfo_children():
+            w.destroy()
+
+        for (bit, a, b, cin, s, cout, expr) in steps:
+            bg = SURFACE if bit % 2 == 0 else SURFACE2
+            row = tk.Frame(self.step_frame, bg=bg); row.pack(fill="x")
+            vals = [f"bit-{bit}", str(a), str(b), str(cin), str(s), str(cout), expr]
+            widths = [6, 5, 5, 6, 6, 7, 45]
+            colors = [GREY, CYAN, ORANGE, YELLOW, GREEN, RED, GREY]
+            for val, w, clr in zip(vals, widths, colors):
+                tk.Label(row, text=val, font=("Consolas",9),
+                         bg=bg, fg=clr, width=w, anchor="center").pack(side="left", padx=2, pady=4)
+
+        # Update result labels
+        data = {
+            "A":    (a_str,               CYAN),
+            "B":    (b_str,               ORANGE),
+            "Cin":  (cin_str,             YELLOW),
+            "sum5": (sum5_str,            GREEN),
+            "dec":  (f"{sum_dec}",        WHITE),
+            "hex":  (f"0x{sum_dec:02X}",  BLUE_GLOW),
+            "overflow": (overflow,        overflow_color),
+        }
+        for key, (val, clr) in data.items():
+            var, lbl = self.res_labels[key]
+            var.set(val); lbl.config(fg=clr)
+
+        # Draw ripple carry diagram
+        self._draw_diagram(a_bits, b_bits, steps, final_cout)
+
+    def _draw_diagram(self, a_bits, b_bits, steps, final_cout):
+        """Draw 4 FA blocks with carry wires."""
+        c = self.diag_canvas
+        c.delete("all")
+
+        W, H   = 110, 90
+        PAD_X  = 30
+        GAP    = 40
+        TOP_Y  = 30
+
+        # Color mapping
+        fg_text = WHITE     # canvas text — always use theme-aware color
+        # But canvas doesn't use tkinter theme so use fixed readable colors
+        # based on is_dark flag held in App... canvas is standalone, use hex directly
+        # We'll check _current_theme
+        is_dark = (_current_theme is DARK_THEME)
+        BG_C    = "#161622" if is_dark else "#f0f4ff"
+        TEXT_C  = "#eef2ff" if is_dark else "#111827"
+        GREY_C  = "#8892b0" if is_dark else "#6b7280"
+        WIRE_C  = "#4f8ef7" if is_dark else "#2563eb"
+        CARRY_C = "#ff8c42" if is_dark else "#c2410c"
+        SUM_C   = "#39e07a" if is_dark else "#15803d"
+        A_C     = "#00e5ff" if is_dark else "#0369a1"
+        B_C     = "#ff8c42" if is_dark else "#c2410c"
+        BOX_BG  = "#1c1c2e" if is_dark else "#ffffff"
+        BOX_BD  = "#4f8ef7" if is_dark else "#2563eb"
+
+        c.config(bg=BG_C)
+
+        total_w = PAD_X * 2 + 4 * W + 3 * GAP + 60
+        c.config(width=max(total_w, 600))
+
+        for i, (bit, a, b, cin_v, s, cout, _) in enumerate(steps):
+            ox = PAD_X + i * (W + GAP)
+            oy = TOP_Y
+
+            # FA box
+            c.create_rectangle(ox, oy, ox+W, oy+H, fill=BOX_BG, outline=BOX_BD, width=2)
+            c.create_text(ox+W//2, oy+18, text=f"FA{bit}", font=("Consolas",10,"bold"), fill=BOX_BD)
+            c.create_text(ox+W//2, oy+38, text=f"A={a}  B={b}", font=("Consolas",8), fill=TEXT_C)
+            c.create_text(ox+W//2, oy+52, text=f"Cin={cin_v}", font=("Consolas",8), fill=CARRY_C)
+            c.create_text(ox+W//2, oy+70, text=f"Sum={s}", font=("Consolas",9,"bold"), fill=SUM_C)
+
+            # A input arrow (top-left)
+            c.create_line(ox+20, oy-20, ox+20, oy, fill=A_C, arrow=tk.LAST, width=2)
+            c.create_text(ox+20, oy-26, text=f"A{bit}={a}", font=("Consolas",7), fill=A_C)
+
+            # B input arrow (top-right)
+            c.create_line(ox+W-20, oy-20, ox+W-20, oy, fill=B_C, arrow=tk.LAST, width=2)
+            c.create_text(ox+W-20, oy-26, text=f"B{bit}={b}", font=("Consolas",7), fill=B_C)
+
+            # Sum output (bottom)
+            c.create_line(ox+W//2, oy+H, ox+W//2, oy+H+20, fill=SUM_C, arrow=tk.LAST, width=2)
+            c.create_text(ox+W//2, oy+H+28, text=f"S{bit}={s}", font=("Consolas",8,"bold"), fill=SUM_C)
+
+            # Carry wire — connect to next FA or show final
+            if i < 3:
+                nx = ox + W + GAP
+                cy_wire = oy + H // 2
+                c.create_line(ox+W, cy_wire, nx, cy_wire, fill=CARRY_C, arrow=tk.LAST, width=2)
+                c.create_text(ox+W+GAP//2, cy_wire-10, text=f"C{cout}", font=("Consolas",8), fill=CARRY_C)
+            else:
+                # Final carry out
+                end_x = ox + W + 40
+                cy_wire = oy + H // 2
+                c.create_line(ox+W, cy_wire, end_x, cy_wire, fill=CARRY_C, arrow=tk.LAST, width=2)
+                cout_clr = "#ff4d6a" if final_cout else SUM_C
+                c.create_text(end_x+4, cy_wire, text=f"Cout={final_cout}", font=("Consolas",8,"bold"),
+                              fill=cout_clr, anchor="w")
+
+        # Cin initial arrow (left of FA0)
+        c.create_line(PAD_X-30, TOP_Y+H//2, PAD_X, TOP_Y+H//2, fill=CARRY_C, arrow=tk.LAST, width=2)
+        c.create_text(PAD_X-32, TOP_Y+H//2-10, text=f"Cin", font=("Consolas",7), fill=CARRY_C, anchor="e")
+
+
 # ─────────────────────────────────────────────────────────
 #  MAIN APPLICATION
 # ─────────────────────────────────────────────────────────
@@ -1221,92 +1656,261 @@ NAV = [
     ("ENC",   "Priority\nEncoder",      "08"),
     ("DEC",   "3-to-8\nDecoder",        "09"),
     ("7SEG",  "Hex to\n7-Segment",      "10"),
+    ("FA4",   "Full Adder\n4-Bit",      "11"),
 ]
 
 class App:
     def __init__(self, root):
-        self.root=root
-        root.title("Digital Logic Suite  ·  v2.0")
-        root.geometry("1020x720"); root.configure(bg=BG)
-        root.minsize(880,620)
-        self._build()
+        self.root = root
+        root.title("Digital Logic Suite  ·  v2.0  MEGAH")
+        root.geometry("1100x740"); root.configure(bg=BG)
+        root.minsize(920, 640)
+        self._is_dark = True
+        self._active_idx = 0
+        self.pages = []
+        self.nav_items = []
+        self.nav_refs = []
+        self._apply_ttk_theme()
+        self._build_ui()
 
-    def _build(self):
-        # ── Sidebar Container ─────────────────────────────
-        sb_outer=tk.Frame(self.root,bg=PANEL,width=168)
-        sb_outer.pack(side="left",fill="y"); sb_outer.pack_propagate(False)
-        
-        # Bottom Pinned Text
-        tk.Label(sb_outer,text="Kerkom  ·  Logika Digital",font=("Segoe UI",6),bg=PANEL,fg=GREY_DIM).pack(side="bottom",pady=(0,10))
-        tk.Frame(sb_outer,bg=BORDER,height=1).pack(fill="x",padx=14,side="bottom",pady=6)
-        
-        # Scrollable Canvas
-        sb_canvas = tk.Canvas(sb_outer, bg=PANEL, highlightthickness=0)
-        sb_vsb = ttk.Scrollbar(sb_outer, orient="vertical", command=sb_canvas.yview)
-        sb_canvas.configure(yscrollcommand=sb_vsb.set)
-        
-        sb_vsb.pack(side="right", fill="y")
-        sb_canvas.pack(side="left", fill="both", expand=True)
-        
-        sb = tk.Frame(sb_canvas, bg=PANEL)
-        sb.bind("<Configure>", lambda e: sb_canvas.configure(scrollregion=sb_canvas.bbox("all")))
-        sb_canvas.create_window((0,0), window=sb, anchor="nw", width=150)
-        
-        def _scroll_sb(e):
-            sb_canvas.yview_scroll(int(-1*(e.delta/120)), "units")
-        sb_outer.bind("<Enter>", lambda e: sb_canvas.bind_all("<MouseWheel>", _scroll_sb))
-        sb_outer.bind("<Leave>", lambda e: sb_canvas.unbind_all("<MouseWheel>"))
+    def _apply_ttk_theme(self):
+        """Apply dark theme to all ttk widgets."""
+        style = ttk.Style(self.root)
+        style.theme_use("clam")
 
-        # Logo
-        lf=tk.Frame(sb,bg=PANEL); lf.pack(fill="x",pady=(22,8))
-        tk.Label(lf,text="DL",font=("Consolas",30,"bold"),bg=PANEL,fg=BLUE).pack()
-        tk.Label(lf,text="SUITE",font=("Segoe UI",7,"bold"),bg=PANEL,fg=GREY).pack()
-        tk.Label(lf,text="Digital Logic v2.0",font=("Segoe UI",7),bg=PANEL,fg=GREY_DIM).pack(pady=(0,12))
-        tk.Frame(sb,bg=BORDER,height=1).pack(fill="x",padx=14,pady=(0,8))
+        # ── Scrollbar ──────────────────────────────────────
+        style.configure("Vertical.TScrollbar",
+                        troughcolor=PANEL, background=GREY_DIM,
+                        arrowcolor=BLUE_GLOW, bordercolor=BORDER,
+                        lightcolor=SURFACE2, darkcolor=BG, relief="flat")
+        style.map("Vertical.TScrollbar",
+                  background=[("active", BLUE), ("pressed", BLUE_GLOW)])
 
-        self.nav_items=[]
-        for i,(key,label,num) in enumerate(NAV):
-            frm=tk.Frame(sb,bg=PANEL); frm.pack(fill="x",padx=8,pady=1)
-            nl=tk.Label(frm,text=num,font=("Consolas",7),bg=PANEL,fg=GREY_DIM,anchor="w")
-            nl.pack(anchor="w",padx=10,pady=(5,0))
-            btn=tk.Button(frm,text=label,font=("Segoe UI",8,"bold"),
-                          bg=PANEL,fg=GREY,activebackground=SURFACE2,activeforeground=WHITE,
-                          relief="flat",cursor="hand2",pady=7,justify="left",anchor="w",padx=12,
-                          command=lambda idx=i: self.show(idx))
+        # ── Combobox ───────────────────────────────────────
+        style.configure("TCombobox",
+                        fieldbackground=SURFACE2, background=SURFACE2,
+                        foreground=WHITE, arrowcolor=BLUE_GLOW,
+                        selectbackground=BLUE_MID, selectforeground=WHITE,
+                        bordercolor=BORDER, lightcolor=BORDER, darkcolor=BORDER,
+                        relief="flat", padding=4)
+        style.map("TCombobox",
+                  fieldbackground=[("readonly", SURFACE2), ("active", SURFACE3)],
+                  foreground=[("readonly", WHITE)],
+                  background=[("active", SURFACE3), ("pressed", BLUE_MID)],
+                  bordercolor=[("active", BLUE), ("focus", CYAN)])
+
+    def _build_ui(self):
+        global BG, PANEL, SURFACE, SURFACE2, SURFACE3, BORDER, BORDER_HI
+        global BLUE, BLUE_DIM, BLUE_MID, BLUE_GLOW, BLUE_DEEP
+        global CYAN, CYAN_DIM, WHITE, GREY, GREY_DIM
+        global RED, RED_DIM, RED_MID, ORANGE, ORANGE_DIM
+        global GREEN, GREEN_DIM, YELLOW, YELLOW_DIM
+        global PURPLE, PURPLE_DIM, NAV_ACTIVE_BG, NAV_ACTIVE_FG
+
+        self.root.configure(bg=BG)
+        self.sb_outer=tk.Frame(self.root, bg=PANEL, width=200)
+        self.sb_outer.pack(side="left", fill="y")
+        self.sb_outer.pack_propagate(False)
+
+        # ── Right accent border on sidebar ────────────────
+        self.sb_border = tk.Frame(self.root, bg=BORDER, width=1)
+        self.sb_border.pack(side="left", fill="y")
+
+        # ── Logo & Version — STATIC ───────────────────────
+        lf = tk.Frame(self.sb_outer, bg=PANEL)
+        lf.pack(fill="x", pady=(18, 0))
+        self.logo_ring = tk.Frame(lf, bg=BLUE_MID, padx=2, pady=2)
+        self.logo_ring.pack()
+        self.logo_inner = tk.Frame(self.logo_ring, bg=PANEL, padx=10, pady=6)
+        self.logo_inner.pack()
+        self.dl_lbl = tk.Label(self.logo_inner, text="DL", font=("Consolas",30,"bold"), bg=PANEL, fg=BLUE)
+        self.dl_lbl.pack()
+        self.suite_lbl = tk.Label(lf, text="SUITE", font=("Segoe UI",8,"bold"), bg=PANEL, fg=BLUE_GLOW)
+        self.suite_lbl.pack(pady=(4,0))
+        self.ver_lbl = tk.Label(lf, text="Digital Logic v2.0", font=("Segoe UI",8), bg=PANEL, fg=GREY_DIM)
+        self.ver_lbl.pack(pady=(2,10))
+
+        def _logo_in(e):
+            self.logo_ring.config(bg=BLUE)
+            self.dl_lbl.config(fg=CYAN)
+        def _logo_out(e):
+            self.logo_ring.config(bg=BLUE_MID)
+            self.dl_lbl.config(fg=BLUE)
+        for w in (self.logo_ring, self.logo_inner, self.dl_lbl, lf):
+            w.bind("<Enter>", _logo_in)
+            w.bind("<Leave>", _logo_out)
+
+        # divider
+        self.logo_div = tk.Frame(self.sb_outer, bg=BLUE_MID, height=1)
+        self.logo_div.pack(fill="x", padx=10, pady=(0,4))
+
+        # ── Bottom Pinned Area ────────────────────────────
+        self.bot_lbl = tk.Label(self.sb_outer, text="Kerkom  ·  Logika Digital",
+                                font=("Segoe UI",7), bg=PANEL, fg=GREY_DIM)
+        self.bot_lbl.pack(side="bottom", pady=(0,10))
+        self.bot_div = tk.Frame(self.sb_outer, bg=BORDER, height=1)
+        self.bot_div.pack(fill="x", padx=14, side="bottom", pady=6)
+
+        # ── Nav Menu — NON-SCROLLABLE ─────────────────────
+        self.sb = tk.Frame(self.sb_outer, bg=PANEL)
+        self.sb.pack(fill="both", expand=True)
+
+        self.nav_items = []
+        self.nav_refs  = []   # keep refs for theme update
+        for i, (key, label, num) in enumerate(NAV):
+            frm = tk.Frame(self.sb, bg=PANEL, padx=0, pady=0)
+            frm.pack(fill="x", padx=6, pady=1)
+
+            accent = tk.Frame(frm, bg=PANEL, width=4)
+            accent.pack(side="left", fill="y")
+
+            inner = tk.Frame(frm, bg=PANEL)
+            inner.pack(side="left", fill="both", expand=True)
+
+            nl = tk.Label(inner, text=num, font=("Consolas",8), bg=PANEL, fg=GREY_DIM, anchor="w")
+            nl.pack(anchor="w", padx=8, pady=(5,0))
+            btn = tk.Button(inner, text=label, font=("Segoe UI",9,"bold"),
+                            bg=PANEL, fg=GREY,
+                            activebackground=SURFACE2, activeforeground=WHITE,
+                            relief="flat", cursor="hand2", pady=7,
+                            justify="left", anchor="w", padx=8,
+                            command=lambda idx=i: self.show(idx))
             btn.pack(fill="x")
-            self.nav_items.append((frm,nl,btn))
+
+            def _nav_enter(e, f=frm, a=accent, n=nl, b=btn, inn=inner, idx=i):
+                if idx != getattr(self, '_active_idx', 0):
+                    f.config(bg=SURFACE2); a.config(bg=BLUE_MID)
+                    n.config(bg=SURFACE2); b.config(bg=SURFACE2, fg=WHITE)
+                    inn.config(bg=SURFACE2)
+            def _nav_leave(e, f=frm, a=accent, n=nl, b=btn, inn=inner, idx=i):
+                if idx != getattr(self, '_active_idx', 0):
+                    f.config(bg=PANEL); a.config(bg=PANEL)
+                    n.config(bg=PANEL); b.config(bg=PANEL, fg=GREY)
+                    inn.config(bg=PANEL)
+            for w in (frm, inner, btn, nl):
+                w.bind("<Enter>", _nav_enter)
+                w.bind("<Leave>", _nav_leave)
+
+            self.nav_items.append((frm, nl, btn, accent, inner))
+            self.nav_refs.append((frm, nl, btn, accent, inner))
 
         # ── Right ─────────────────────────────────────────
-        right=tk.Frame(self.root,bg=BG); right.pack(side="right",fill="both",expand=True)
+        self.right = tk.Frame(self.root, bg=BG)
+        self.right.pack(side="right", fill="both", expand=True)
 
         # Topbar
-        topbar=tk.Frame(right,bg=PANEL,height=50); topbar.pack(fill="x"); topbar.pack_propagate(False)
-        tk.Frame(topbar,bg=BLUE,height=2).pack(fill="x",side="bottom")
-        lrow=tk.Frame(topbar,bg=PANEL); lrow.pack(side="left",fill="y",padx=20)
-        self.tb_num=tk.StringVar(value=""); self.tb_ttl=tk.StringVar(value="")
-        tk.Label(lrow,textvariable=self.tb_num,font=("Consolas",11,"bold"),bg=PANEL,fg=BLUE).pack(side="left",padx=(0,10))
-        tk.Label(lrow,textvariable=self.tb_ttl,font=("Segoe UI",11,"bold"),bg=PANEL,fg=WHITE).pack(side="left")
+        self.topbar = tk.Frame(self.right, bg=PANEL, height=56)
+        self.topbar.pack(fill="x")
+        self.topbar.pack_propagate(False)
+
+        self.topbar_accent = tk.Frame(self.topbar, bg=PANEL)
+        self.topbar_accent.pack(fill="x", side="bottom")
+        self.topbar_line1 = tk.Frame(self.topbar_accent, bg=BLUE, height=2)
+        self.topbar_line1.pack(fill="x")
+        self.topbar_line2 = tk.Frame(self.topbar_accent, bg=BLUE_MID, height=1)
+        self.topbar_line2.pack(fill="x")
+
+        lrow = tk.Frame(self.topbar, bg=PANEL)
+        lrow.pack(side="left", fill="y", padx=20)
+        self.tb_num = tk.StringVar(value="")
+        self.tb_ttl = tk.StringVar(value="")
+        self.tb_num_lbl = tk.Label(lrow, textvariable=self.tb_num,
+                                   font=("Consolas",13,"bold"), bg=PANEL, fg=CYAN)
+        self.tb_num_lbl.pack(side="left", padx=(0,10))
+        self.tb_ttl_lbl = tk.Label(lrow, textvariable=self.tb_ttl,
+                                   font=("Segoe UI",13,"bold"), bg=PANEL, fg=WHITE)
+        self.tb_ttl_lbl.pack(side="left")
+
+        # Right side of topbar — toggle + badge
+        rrow = tk.Frame(self.topbar, bg=PANEL)
+        rrow.pack(side="right", fill="y", padx=16)
+
+        # Dark/Light toggle button
+        toggle_text = "☀  Light Mode" if self._is_dark else "🌙  Dark Mode"
+        self.toggle_btn = tk.Button(rrow, text=toggle_text,
+                                    font=("Segoe UI",9,"bold"),
+                                    bg=BLUE_DIM, fg=BLUE_GLOW,
+                                    activebackground=BLUE_MID, activeforeground=WHITE,
+                                    relief="flat", cursor="hand2",
+                                    padx=12, pady=4,
+                                    highlightthickness=1, highlightbackground=BLUE_MID, bd=0,
+                                    command=self._toggle_theme)
+        self.toggle_btn.pack(side="right", anchor="center", pady=14, padx=(8,0))
+        self.toggle_btn.bind("<Enter>", lambda e: self.toggle_btn.config(bg=BLUE_MID))
+        self.toggle_btn.bind("<Leave>", lambda e: self.toggle_btn.config(bg=BLUE_DIM))
+
+        self.badge_frame = tk.Frame(rrow, bg=BLUE_DIM, padx=8, pady=3)
+        self.badge_frame.pack(side="right", anchor="center", pady=14)
+        self.badge_lbl = tk.Label(self.badge_frame, text="v2.0  MEGAH",
+                                  font=("Consolas",8,"bold"), bg=BLUE_DIM, fg=BLUE_GLOW)
+        self.badge_lbl.pack()
 
         # Pages
-        self.container=tk.Frame(right,bg=PANEL); self.container.pack(fill="both",expand=True)
-        self.pages=[]
-        p0=PageCalc(self.container)
-        p1=PageSOP(self.container)
-        p2=PageEquation(self.container)
-        p3=PageGate(self.container)
-        p4=PageTruthTable(self.container,on_export=self._export_to_eq)
-        p5=PageALU(self.container)
-        p6=PageArith(self.container)
-        p7=PageEncoder(self.container)
-        p8=PageDecoder(self.container)
-        p9=PageHexTo7Seg(self.container)
-        for p in [p0,p1,p2,p3,p4,p5,p6,p7,p8,p9]:
-            p.place(relx=0,rely=0,relwidth=1,relheight=1)
+        self.container = tk.Frame(self.right, bg=BG)
+        self.container.pack(fill="both", expand=True)
+        self.pages = []
+        self.nav_items = []
+        self.nav_refs  = []
+        p0 = PageCalc(self.container)
+        p1 = PageSOP(self.container)
+        p2 = PageEquation(self.container)
+        p3 = PageGate(self.container)
+        p4 = PageTruthTable(self.container, on_export=self._export_to_eq)
+        p5 = PageALU(self.container)
+        p6 = PageArith(self.container)
+        p7 = PageEncoder(self.container)
+        p8 = PageDecoder(self.container)
+        p9 = PageHexTo7Seg(self.container)
+        p10= PageFullAdder4bit(self.container)
+        for p in [p0,p1,p2,p3,p4,p5,p6,p7,p8,p9,p10]:
+            p.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.pages.append(p)
 
-        # bind keyboard to calc
         self.root.bind("<Key>", p0._kb)
-        self.show(0)
+        self.show(self._active_idx)
+
+    def _toggle_theme(self):
+        global _current_theme
+        global BG, PANEL, SURFACE, SURFACE2, SURFACE3, BORDER, BORDER_HI
+        global BLUE, BLUE_DIM, BLUE_MID, BLUE_GLOW, BLUE_DEEP
+        global CYAN, CYAN_DIM, WHITE, GREY, GREY_DIM
+        global RED, RED_DIM, RED_MID, ORANGE, ORANGE_DIM
+        global GREEN, GREEN_DIM, YELLOW, YELLOW_DIM
+        global PURPLE, PURPLE_DIM, NAV_ACTIVE_BG, NAV_ACTIVE_FG
+
+        self._is_dark = not self._is_dark
+        _current_theme = DARK_THEME if self._is_dark else LIGHT_THEME
+        BG=_current_theme["BG"]; PANEL=_current_theme["PANEL"]
+        SURFACE=_current_theme["SURFACE"]; SURFACE2=_current_theme["SURFACE2"]
+        SURFACE3=_current_theme["SURFACE3"]; BORDER=_current_theme["BORDER"]
+        BORDER_HI=_current_theme["BORDER_HI"]; BLUE=_current_theme["BLUE"]
+        BLUE_DIM=_current_theme["BLUE_DIM"]; BLUE_MID=_current_theme["BLUE_MID"]
+        BLUE_GLOW=_current_theme["BLUE_GLOW"]; BLUE_DEEP=_current_theme["BLUE_DEEP"]
+        CYAN=_current_theme["CYAN"]; CYAN_DIM=_current_theme["CYAN_DIM"]
+        WHITE=_current_theme["WHITE"]; GREY=_current_theme["GREY"]
+        GREY_DIM=_current_theme["GREY_DIM"]; RED=_current_theme["RED"]
+        RED_DIM=_current_theme["RED_DIM"]; RED_MID=_current_theme["RED_MID"]
+        ORANGE=_current_theme["ORANGE"]; ORANGE_DIM=_current_theme["ORANGE_DIM"]
+        GREEN=_current_theme["GREEN"]; GREEN_DIM=_current_theme["GREEN_DIM"]
+        YELLOW=_current_theme["YELLOW"]; YELLOW_DIM=_current_theme["YELLOW_DIM"]
+        PURPLE=_current_theme["PURPLE"]; PURPLE_DIM=_current_theme["PURPLE_DIM"]
+        NAV_ACTIVE_BG=_current_theme["NAV_ACTIVE_BG"]
+        NAV_ACTIVE_FG=_current_theme["NAV_ACTIVE_FG"]
+
+        # ── Rebuild everything from scratch ───────────────
+        # Destroy all existing pages + sidebar + right panel
+        for p in self.pages:
+            p.destroy()
+
+        self.sb_outer.destroy()
+        self.sb_border.destroy()
+        self.right.destroy()
+
+        # Re-apply ttk theme with new colors
+        self._apply_ttk_theme()
+
+        # Rebuild all UI with new theme colors
+        self._build_ui()
 
     def _export_to_eq(self,seq):
         p=self.pages[2]; p.entry.delete(0,tk.END); p.entry.insert(0,seq)
@@ -1314,14 +1918,24 @@ class App:
         messagebox.showinfo("Export Berhasil",
             "Data Truth Table berhasil dikirim ke Equation Generator!\nKlik 'Generate Equation' untuk melihat hasil.")
 
-    def show(self,idx):
-        key,label,num=NAV[idx]
-        self.tb_num.set(f"/{num}"); self.tb_ttl.set(label.replace("\n"," "))
-        for i,(frm,nl,btn) in enumerate(self.nav_items):
-            if i==idx:
-                frm.config(bg=BLUE_DIM); btn.config(bg=BLUE_DIM,fg=WHITE); nl.config(bg=BLUE_DIM,fg=BLUE_GLOW)
+    def show(self, idx):
+        self._active_idx = idx
+        key, label, num = NAV[idx]
+        self.tb_num.set(f"/{num}")
+        self.tb_ttl.set(label.replace("\n", " "))
+        for i, (frm, nl, btn, accent, inner) in enumerate(self.nav_items):
+            if i == idx:
+                frm.config(bg=NAV_ACTIVE_BG)
+                inner.config(bg=NAV_ACTIVE_BG)
+                btn.config(bg=NAV_ACTIVE_BG, fg=WHITE)
+                nl.config(bg=NAV_ACTIVE_BG, fg=CYAN)
+                accent.config(bg=CYAN)
             else:
-                frm.config(bg=PANEL); btn.config(bg=PANEL,fg=GREY); nl.config(bg=PANEL,fg=GREY_DIM)
+                frm.config(bg=PANEL)
+                inner.config(bg=PANEL)
+                btn.config(bg=PANEL, fg=GREY)
+                nl.config(bg=PANEL, fg=GREY_DIM)
+                accent.config(bg=PANEL)
         self.pages[idx].lift()
 
 
